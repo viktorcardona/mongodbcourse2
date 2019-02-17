@@ -60,6 +60,10 @@ mongorestore --drop --gzip --uri mongodb+srv://m220student:m220password@mflix-cx
 
 The Data is now imported into the mflix Atlas DB Cluster!
 
+# URI to MongoDB called svr string
+# mongodb+srv://<username>:<password>@<host>/<database>
+# the srv record manages the info related to the cluster
+# retryWrites=true Retries the connection if it fails
 
 ## Run the App
 
@@ -77,4 +81,102 @@ For instance:
 
 cd mflix
 mvn -Dtest=ConnectionTest test
+
+
+## MongoClient
+
+	Java MongoDB Driver Used in this Course:
+
+	<dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-sync</artifactId>
+        <version>3.9.1</version>
+    </dependency>
+
+
+	Java MongoDB Driver for Asynchronous:    
+
+	<dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-async</artifactId>
+        <version>...</version>
+    </dependency>
+
+    Java MongoDB Driver Legacy
+    	Which combines syn and asyn
+    	Should not be used
+
+	<dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-legacy</artifactId>
+        <version>...</version>
+    </dependency>
+
+    MongoDB Java Driver Base Classes:
+
+    	MongoClient
+    	MongoDatabase
+    	MongoCollection
+    	Document
+    	Bson
+
+    	class Document implements Map<String, Object>, Serializable, Bson {
+
+    	}
+
+    API:
+    	https://static.javadoc.io/org.mongodb/mongodb-driver-sync/3.9.0/index.html?com/mongodb/client/MongoClient.html
+
+
+## Import Dataset
+
+	All the data required for MFlix is contained in the data/ directory in the handout. To import this data into Atlas, use the following command (with your Atlas URI string filled in):
+
+		mongorestore --drop --gzip --uri <your-atlas-uri> data
+
+	A few tips when running mongorestore:
+
+		The --username and --password flags cannot be used with and SRV string. Instead, include the username and password in the SRV string (i.e. mongodb+srv://m220student:m220password@<your-cluster-address>)
+		In order to work properly, this command must be run from the top-level of the mflix-<language>/ directory, where <language> is your chosen programming language.
+	
+	You can verify that the data was imported by connecting to Atlas:
+
+		mongo <your-atlas-uri>
+
+
+## MongoDB Compass
+
+	https://www.mongodb.com/download-center/compass?jmp=university
+
+	MongoDB Compass
+	As the GUI for MongoDB, MongoDB Compass allows you to make smarter decisions about document structure, querying, indexing, document validation, and more. 
+
+	https://docs.mongodb.com/compass/master/aggregation-pipeline-builder/
+
+	https://docs.mongodb.com/compass/master/export-pipeline-to-language/
+
+
+## Query Builders
+
+	Filters
+	Projections
+	Sorts
+	Aggregation
+	Updates
+	Indexes
+
+
+## Java POJO 
+
+	http://mongodb.github.io/mongo-java-driver/3.6/driver/getting-started/quick-start-pojo/
+	http://mongodb.github.io/mongo-java-driver/3.2/bson/codecs/
+
+
+	
+
+
+
+
+
+
 
