@@ -201,8 +201,12 @@ public class MovieDao extends AbstractMFlixDao {
     List<Document> movies = new ArrayList<>();
     // TODO > Ticket: Paging - implement the necessary cursor methods to support simple
     // pagination like skip and limit in the code below
-    moviesCollection.find(castFilter).sort(sort).iterator()
-    .forEachRemaining(movies::add);
+    moviesCollection.find(castFilter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .iterator()
+            .forEachRemaining(movies::add);
     return movies;
   }
 
@@ -283,6 +287,10 @@ public class MovieDao extends AbstractMFlixDao {
     // Your job is to order the stages correctly in the pipeline.
     // Starting with the `matchStage` add the remaining stages.
     pipeline.add(matchStage);
+    pipeline.add(sortStage);//added
+    pipeline.add(skipStage);//added
+    pipeline.add(limitStage);//added
+    pipeline.add(facetStage);//added
 
     moviesCollection.aggregate(pipeline).iterator().forEachRemaining(movies::add);
     return movies;

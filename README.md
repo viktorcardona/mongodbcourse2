@@ -172,11 +172,24 @@ mvn -Dtest=ConnectionTest test
 	http://mongodb.github.io/mongo-java-driver/3.2/bson/codecs/
 
 
-	
+## Aggregation Framework
 
+	Dedicated Course:
+	M121: The MongoDB Aggregation Framework
+	https://university.mongodb.com/courses/M121/about
 
+	This lesson uses unit test file src/test/java/mflix/lessons/UsingAggregationBuilders.java
 
+	Operators:
+		https://docs.mongodb.com/manual/reference/operator/aggregation/
 
+	Stages:
+		https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline/
 
+	$facet Stage:
+		Check the example:
+		https://docs.mongodb.com/manual/reference/operator/aggregation/facet/
 
+	Method Example:
 
+	MovieDao.getMoviesCastFaceted
