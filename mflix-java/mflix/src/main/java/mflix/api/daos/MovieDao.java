@@ -67,8 +67,15 @@ public class MovieDao extends AbstractMFlixDao {
     // match stage to find movie
     Bson match = Aggregates.match(Filters.eq("_id", new ObjectId(movieId)));
     pipeline.add(match);
-    // TODO> Ticket: Get Comments - implement the lookup stage that allows the comments to
-    // retrieved with Movies.
+    // TODO> Ticket: Get Comments - implement the lookup stage that allows the comments to retrieved with Movies.
+
+    Bson lookupFields = new Document("from", "comments");
+    ((Document) lookupFields).put("localField", "_id");
+    ((Document) lookupFields).put("foreignField", "movie_id");
+    ((Document) lookupFields).put("as", "comments");
+    Bson lookup = new Document("$lookup", lookupFields);
+    pipeline.add(lookup);
+
     Document movie = moviesCollection.aggregate(pipeline).first();
 
     return movie;
