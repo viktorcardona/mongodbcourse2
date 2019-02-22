@@ -24,7 +24,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.text.MessageFormat;
 import java.util.Map;
+import java.util.Objects;
 
+import static com.mongodb.client.model.Updates.set;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
@@ -62,8 +64,12 @@ public class UserDao extends AbstractMFlixDao {
    */
   public boolean addUser(User user) {
     //TODO > Ticket: Durable Writes -  you might want to use a more durable write concern here!
-    usersCollection.insertOne(user);
-    return true;
+
+    if (getUser(user.getEmail()) == null) {//TODO this is new: E11000 duplicate key error collection: mflix.users index: email_1 dup key: { : "v3zv6bbbf@smagt.wsj" }
+      usersCollection.insertOne(user);
+      return true;
+    }
+    return false;
     //TODO > Ticket: Handling Errors - make sure to only add new users
     // and not users that already exist.
 
@@ -80,18 +86,18 @@ public class UserDao extends AbstractMFlixDao {
     //TODO> Ticket: User Management - implement the method that allows session information to be
     // stored in it's designated collection.
 
-    //Session session = new Session();
-    //session.setUserId(userId);
-    //session.setJwt(jwt);
+    if (Objects.nonNull(getUserSession(userId))) {
+      return true;//the session already exist!
+    }
+
+    Bson query = new Document("user_id", userId);
+    ((Document) query).put("jwt", jwt);
 
     UpdateOptions options = new UpdateOptions();
     options.upsert(true);
 
     Bson session = new Document("user_id", userId);
     ((Document) session).put("jwt", jwt);
-
-    Bson query = new Document("user_id", userId);
-    ((Document) query).put("jwt", jwt);
 
     sessionsCollection.updateOne(query, new Document("$set", session), options);
 
@@ -156,8 +162,13 @@ public class UserDao extends AbstractMFlixDao {
   public boolean updateUserPreferences(String email, Map<String, ?> userPreferences) {
     //TODO> Ticket: User Preferences - implement the method that allows for user preferences to
     // be updated.
+    if (Objects.isNull(userPreferences)) {
+      throw new IncorrectDaoOperation("userPreferences can not be null!");
+    }
+    Bson queryFilter = Filters.eq("email", email);
+    UpdateResult result = usersCollection.updateMany(queryFilter, set("preferences", userPreferences));
     //TODO > Ticket: Handling Errors - make this method more robust by
     // handling potential exceptions when updating an entry.
-    return false;
+    return result.getModifiedCount() > 0;
   }
 }

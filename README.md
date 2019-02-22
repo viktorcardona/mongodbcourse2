@@ -196,7 +196,10 @@ mvn -Dtest=ConnectionTest test
 
 
 ## Basic Writes - Inserts
-	
+
+	Docs:
+	http://mongodb.github.io/mongo-java-driver/3.9/driver/tutorials/perform-write-operations/
+
 	BasicWrites.java in the mflix/src/test/java/mflix/lessons directory
 
 ## Write Concerns
@@ -207,3 +210,11 @@ mvn -Dtest=ConnectionTest test
 
 	w: 0 			Does not ensure that write was committed by any nodes - very fast but less durable
 
+## Update Operators
+
+	Docs:
+	http://mongodb.github.io/mongo-java-driver/3.9/driver/tutorials/perform-write-operations/
+
+	lesson UpdateOperators.java in the mflix/src/test/java/mflix/lessons directory
+
+	
