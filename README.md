@@ -193,3 +193,17 @@ mvn -Dtest=ConnectionTest test
 	Method Example:
 
 	MovieDao.getMoviesCastFaceted
+
+
+## Basic Writes - Inserts
+	
+	BasicWrites.java in the mflix/src/test/java/mflix/lessons directory
+
+## Write Concerns
+
+	w: 1 			It is the default writeConcern - it ensures the write has been committed by at least 1 node
+
+	w: majority 	Ensures writes are committed by a majority of nodes - slower but very durable
+
+	w: 0 			Does not ensure that write was committed by any nodes - very fast but less durable
+
