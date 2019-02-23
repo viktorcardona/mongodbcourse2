@@ -3,12 +3,10 @@ package mflix.api.daos;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoWriteException;
 import com.mongodb.ReadConcern;
+import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Aggregates;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Sorts;
-import com.mongodb.client.model.Updates;
+import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import mflix.api.models.Comment;
@@ -169,6 +167,34 @@ public class CommentDao extends AbstractMFlixDao {
     // // guarantee for the returned documents. Once a commenter is in the
     // // top 20 of users, they become a Critic, so mostActive is composed of
     // // Critic objects.
+    /*
+      Query Implemented with MongoDB Compass:
+      Arrays.asList(group("$email", sum("numComments", 1L)), sort(descending("numComments")), limit(3L))
+
+      $group
+      {
+        _id: "$email",
+        numComments: {
+          $sum:1
+        }
+      }
+      $sort
+      {
+        numComments: -1
+      }
+      $limit: 3
+    */
+    List<Bson> pipeline = new ArrayList<>();
+    pipeline.add(Aggregates.group("$email", Accumulators.sum("count", 1)));
+    pipeline.add(Aggregates.sort(Sorts.descending("count")));
+    pipeline.add(Aggregates.limit(20));
+
+    db.getCollection(COMMENT_COLLECTION, Critic.class)
+            .withWriteConcern(WriteConcern.MAJORITY)//this report is expected to be produced with an high durability guarantee for the returned documents
+            .withCodecRegistry(pojoCodecRegistry)
+            .aggregate(pipeline)
+            .into(mostActive);
+
     return mostActive;
   }
 }

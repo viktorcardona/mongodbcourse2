@@ -341,4 +341,53 @@ https://github.com/cult-of-coders/grapher/issues/188
 ## Basic Deletes
 
 	BasicDeletes.java
-	
+
+## Admin Backend
+
+	Review:
+  /**
+   * Ticket: User Report - produce a list of users that comment the most in the website. Query the
+   * `comments` collection and group the users by number of comments. The list is limited to up most
+   * 20 commenter.
+   *
+   * @return List {@link Critic} objects.
+   */
+  public List<Critic> mostActiveCommenters() {
+    List<Critic> mostActive = new ArrayList<>();
+    // // TODO> Ticket: User Report - execute a command that returns the
+    // // list of 20 users, group by number of comments. Don't forget,
+    // // this report is expected to be produced with an high durability
+    // // guarantee for the returned documents. Once a commenter is in the
+    // // top 20 of users, they become a Critic, so mostActive is composed of
+    // // Critic objects.
+    /*
+      Query Implemented with MongoDB Compass:
+      Arrays.asList(group("$email", sum("numComments", 1L)), sort(descending("numComments")), limit(3L))
+
+      $group
+      {
+        _id: "$email",
+        numComments: {
+          $sum:1
+        }
+      }
+      $sort
+      {
+        numComments: -1
+      }
+      $limit: 3
+    */
+    List<Bson> pipeline = new ArrayList<>();
+    pipeline.add(Aggregates.group("$email", Accumulators.sum("count", 1)));
+    pipeline.add(Aggregates.sort(Sorts.descending("count")));
+    pipeline.add(Aggregates.limit(20));
+
+    db.getCollection(COMMENT_COLLECTION, Critic.class)
+            .withWriteConcern(WriteConcern.MAJORITY)//this report is expected to be produced with an high durability guarantee for the returned documents
+            .withCodecRegistry(pojoCodecRegistry)
+            .aggregate(pipeline)
+            .into(mostActive);
+
+    return mostActive;
+  }
+
