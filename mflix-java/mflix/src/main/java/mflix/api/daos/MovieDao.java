@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static com.mongodb.client.model.Projections.include;
 
@@ -48,7 +45,7 @@ public class MovieDao extends AbstractMFlixDao {
     //TODO> Ticket: Handling Errors - implement a way to catch a
     //any potential exceptions thrown while validating a movie id.
     //Check out this method's use in the method that follows.
-    return true;
+    return ObjectId.isValid(movieId);//TODO: I do on Feb 22 but it should be later
   }
 
   /**
@@ -58,7 +55,7 @@ public class MovieDao extends AbstractMFlixDao {
    * @return Document object or null.
    */
   @SuppressWarnings("UnnecessaryLocalVariable")
-  public Document getMovie(String movieId) {
+  public Document getMovie_original(String movieId) {
     if (!validIdValue(movieId)) {
       return null;
     }
@@ -76,9 +73,81 @@ public class MovieDao extends AbstractMFlixDao {
     Bson lookup = new Document("$lookup", lookupFields);
     pipeline.add(lookup);
 
+    //https://stackoverflow.com/questions/47584665/mongodb-apply-sort-to-lookup-results?rq=1
+    //https://stackoverflow.com/questions/22932364/mongodb-group-values-by-multiple-fields
+    //https://discourse.university.mongodb.com/t/ticket-create-update-comments-and-delete-comments-did-someone-get-the-validation-code/10439/25
+
     Document movie = moviesCollection.aggregate(pipeline).first();
 
     return movie;
+  }
+
+  public Document getMovie_works_01(String movieId) {
+    if (!validIdValue(movieId)) {
+      return null;
+    }
+
+    List<Bson> pipeline = new ArrayList<>();
+    // match stage to find movie
+    Bson match = Aggregates.match(Filters.eq("_id", new ObjectId(movieId)));
+    pipeline.add(match);
+    // TODO> Ticket: Get Comments - implement the lookup stage that allows the comments to retrieved with Movies.
+
+    Document movie = moviesCollection.aggregate(pipeline).first();
+
+    if (Objects.isNull(movie)) {
+      return null;
+    }
+
+    //TODO: it is not the way. This sort task should be done in the pipeline
+    List<Document> commentDocs = db.getCollection("comments")
+            .find(new Document("movie_id", new ObjectId(movieId)))
+            .sort(Sorts.descending("date"))
+            .into(new ArrayList<>());
+
+    if (Objects.nonNull(commentDocs)) {
+      movie.put("comments", commentDocs);
+    }
+
+    return movie;
+  }
+
+  public Document getMovie(String movieId) {
+    if (!validIdValue(movieId)) {
+      return null;
+    }
+
+    List<Bson> pipeline = new ArrayList<>();
+    // match stage to find movie
+    Bson match = Aggregates.match(Filters.eq("_id", new ObjectId(movieId)));
+    pipeline.add(match);
+
+    Bson lookupFields = new Document("from", "comments");
+    ((Document) lookupFields).put("localField", "_id");
+    ((Document) lookupFields).put("foreignField", "movie_id");
+    ((Document) lookupFields).put("as", "comments");
+    Bson lookup = new Document("$lookup", lookupFields);
+    pipeline.add(lookup);
+
+    Document movie = moviesCollection.aggregate(pipeline).first();
+
+    if (Objects.isNull(movie)) {
+      return null;
+    }
+
+    //TODO: it is not the way. This sort task should be done in the pipeline
+    List<Document> commentDocs = (List<Document>) movie.get("comments");
+    if (Objects.nonNull(commentDocs)) {
+      commentDocs.sort((doc1, doc2) -> compareByDate(doc1, doc2));
+    }
+
+    return movie;
+  }
+
+  private int compareByDate(Document doc1, Document doc2) {
+    Date date1 = (Date) doc1.get("date");
+    Date date2 = (Date) doc2.get("date");
+    return date2.compareTo(date1);//descending
   }
 
   /**

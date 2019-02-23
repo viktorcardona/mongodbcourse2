@@ -253,4 +253,92 @@ mvn -Dtest=ConnectionTest test
 	    return movie;
   	}
 
-  	
+
+$match
+
+  	{
+  '_id': ObjectId('573a1390f29313caabcd413e')
+}
+
+$lookup
+
+{
+  from: 'comments',
+  localField: '_id',
+  foreignField: 'movie_id',
+  as: 'comments'
+}
+
+
+$unwind
+
+{
+  path: '$comments'
+}
+
+
+$sort
+
+{
+  'comments.date': -1
+}
+
+$group
+
+{
+  "_id": '$_id',
+  "title": {$first: "$title"},
+  "year": {$first: "$year"},
+  "runtime": {$first: "$runtime"},
+  "cast": {$first: "$cast"},
+  "plot": {$first: "$plot"},
+  "fullplot": {$first: "$fullplot"},
+  "lastupdated": {$first: "$lastupdated"},
+  "type": {$first: "$type"},
+  "poster": {$first: "$poster"},
+  "directors": {$first: "$directors"},
+  "writers": {$first: "$writers"},
+  "imdb": {$first: "$imdb"},
+  "countries": {$first: "$countries"},
+  "genres": {$first: "$genres"},
+  "tomatoes": {$first: "$tomatoes"},
+  "num_mflix_comments": {$first: "$num_mflix_comments"},
+  "comments": {
+    "$push" : {
+      "_id": "$comments._id",
+      "name": "$comments.name",
+      "email": "$comments.email",
+      "movie_id": "$comments.movie_id",
+      "text": "$comments.text",
+      "date": "$comments.date"
+    }
+  }
+}
+
+
+
+https://github.com/cult-of-coders/grapher/issues/188
+
+{
+  from: 'comments',
+  as: 'comments',
+  let: { comment_movie_id: "$movie_id" },
+  pipeline: [
+        {
+            $project: { _id: 1}
+        },
+        {
+            $match: {
+               $expr: {
+                   $eq: ["$_id", "$$comment_movie_id"]
+               }
+            }
+        }
+  ]
+}
+
+
+## Basic Deletes
+
+	BasicDeletes.java
+	

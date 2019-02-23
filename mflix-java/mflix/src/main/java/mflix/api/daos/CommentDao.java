@@ -28,7 +28,9 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
+import static com.mongodb.client.model.Updates.set;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
@@ -79,12 +81,19 @@ public class CommentDao extends AbstractMFlixDao {
    * returns the resulting Comment object.
    */
   public Comment addComment(Comment comment) {
-
-    // TODO> Ticket - Update User reviews: implement the functionality that enables adding a new
-    // comment.
+    // TODO> Ticket - Update User reviews: implement the functionality that enables adding a new  comment.
+    boolean isValid = Objects.nonNull(comment) &&
+            Objects.nonNull(comment.getId()) &&
+            !comment.getId().isEmpty() &&
+            Objects.nonNull(comment.getEmail()) &&
+            !comment.getEmail().isEmpty();
+    if (!isValid) {
+      throw new IncorrectDaoOperation("Invalid comment: " + comment);
+    }
+    this.commentCollection.insertOne(comment);
     // TODO> Ticket - Handling Errors: Implement a try catch block to
     // handle a potential write exception when given a wrong commentId.
-    return null;
+    return comment;
   }
 
   /**
@@ -101,12 +110,25 @@ public class CommentDao extends AbstractMFlixDao {
    * @return true if successfully updates the comment text.
    */
   public boolean updateComment(String commentId, String text, String email) {
+    // TODO> Ticket - Update User reviews: implement the functionality that enables updating an  user own comments
+    boolean isValid = Objects.nonNull(commentId) &&
+            !commentId.isEmpty() &&
+            Objects.nonNull(email) &&
+            !email.isEmpty() &&
+            Objects.nonNull(text);
+    if (!isValid) {
+      return false;
+    }
+    Bson query = new Document("_id", new ObjectId(commentId));
+    ((Document) query).put("email", email);
 
-    // TODO> Ticket - Update User reviews: implement the functionality that enables updating an
-    // user own comments
+    Bson fields = new Document("text", text);
+    ((Document) fields).put("date", new Date());
+
+    UpdateResult result = commentCollection.updateOne(query, new Document("$set", fields));
     // TODO> Ticket - Handling Errors: Implement a try catch block to
     // handle a potential write exception when given a wrong commentId.
-    return false;
+    return result.getModifiedCount() > 0;
   }
 
   /**
@@ -117,12 +139,19 @@ public class CommentDao extends AbstractMFlixDao {
    * @return true if successful deletes the comment.
    */
   public boolean deleteComment(String commentId, String email) {
-    // TODO> Ticket Delete Comments - Implement the method that enables the deletion of a user
-    // comment
+    // TODO> Ticket Delete Comments - Implement the method that enables the deletion of a user comment
+      if (Objects.isNull(commentId) || Objects.isNull(email)) {
+          return false;
+      }
+      Bson query = Filters.and(
+              Filters.eq("_id", new ObjectId(commentId)),
+              Filters.eq("email", email));
+
+      DeleteResult result = commentCollection.deleteOne(query);
+
     // TIP: make sure to match only users that own the given commentId
-    // TODO> Ticket Handling Errors - Implement a try catch block to
-    // handle a potential write exception when given a wrong commentId.
-    return false;
+    // TODO> Ticket Handling Errors - Implement a try catch block to handle a potential write exception when given a wrong commentId.
+    return result.getDeletedCount() > 0;
   }
 
   /**
