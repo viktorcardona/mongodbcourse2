@@ -391,3 +391,8 @@ https://github.com/cult-of-coders/grapher/issues/188
     return mostActive;
   }
 
+
+## Bulk Writes
+
+	http://mongodb.github.io/mongo-java-driver/3.9/driver/tutorials/bulk-writes/
+	
