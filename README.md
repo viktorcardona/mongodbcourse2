@@ -396,3 +396,35 @@ https://github.com/cult-of-coders/grapher/issues/188
 
 	http://mongodb.github.io/mongo-java-driver/3.9/driver/tutorials/bulk-writes/
 	
+
+## Resilience & Robustness
+
+
+## Resilience & Robustness: Connection Pooling
+    
+    Default size is 100 connections in a MongoDB's pool
+
+    http://mongodb.github.io/mongo-java-driver/3.6/javadoc/com/mongodb/ConnectionString.html
+
+    mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database.collection][?options]]
+
+
+
+## Resilience & Robustness: Robust Client Configuration
+  
+    * Always use connection pooling
+    * Always specify a wtimeout with majority writes
+      - The primary reason to use a wtimeout is because by default, when 
+        using Write Concern more durable than w: 1, there is no wtimeout, 
+        so the server will wait indefinitely for operations to complete. 
+      - Our application can use wtimeout to put a time limit on how long the server waits before a Write Concern is satisfied
+    * Always handle serverSelectionTimeout errors. Those errors are cause by malfunctioning hardware or software.
+
+
+
+## Resilience & Robustness: 
+
+## Resilience & Robustness: 
+
+
+
