@@ -409,6 +409,25 @@ https://github.com/cult-of-coders/grapher/issues/188
     mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database.collection][?options]]
 
 
+    http://mongodb.github.io/mongo-java-driver/3.9/driver/tutorials/connect-to-mongodb/
+
+    connectTimeoutMS=ms: How long a connection can take to be opened before timing out.
+    connectTimeoutMS=2000
+
+    Modify the connection information for MongoClient to set a write concern timeout of 2500 milliseconds:
+
+      ConnectionString connString = new ConnectionString(connectionString);
+      MongoClientSettings settings = MongoClientSettings.builder()
+            .applyConnectionString(connString)
+            .writeConcern(WriteConcern.MAJORITY.withWTimeout(2500, TimeUnit.MILLISECONDS))
+            .build();
+      MongoClient mongoClient = MongoClients.create(settings);
+
+    Aside from the write concern timeout, you are also tasked to set the connectTimeoutMS configuration option to 2000 milliseconds:
+
+      spring.mongodb.uri=mongodb+srv://myUser:myPassword@mflix-cxjdm.mongodb.net/test?retryWrites=true&maxPoolSize=50&connectTimeoutMS=2000
+
+
 
 ## Resilience & Robustness: Robust Client Configuration
   
@@ -422,9 +441,16 @@ https://github.com/cult-of-coders/grapher/issues/188
 
 
 
-## Resilience & Robustness: 
+## Resilience & Robustness: Error Handling
 
-## Resilience & Robustness: 
+
+
+## Resilience & Robustness: Principle of Least Privilege:
+  
+  Add a new user on your Atlas cluster for the MFlix.
+
+
+
 
 
 

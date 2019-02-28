@@ -95,7 +95,7 @@ public class Migrator {
 
     // set your MongoDB Cluster connection string
     // TODO> Ticket: Migration - set the cluster connection string.
-    String mongoUri = "mongodb+srv://m220student:m220password@mflix-cxjdm.mongodb.net/test?retryWrites=true";
+    String mongoUri = "mongodb+srv://mflixAppUser:mflixAppPwd@mflix-cxjdm.mongodb.net/test?retryWrites=true";
 
     // instantiate database and collection objects
     MongoDatabase mflix = MongoClients.create(mongoUri).getDatabase("mflix");
