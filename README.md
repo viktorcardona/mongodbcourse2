@@ -450,7 +450,13 @@ https://github.com/cult-of-coders/grapher/issues/188
   Add a new user on your Atlas cluster for the MFlix.
 
 
+## Resilience & Robustness: Change Streams
+  
+  Change Streams: They can be used to log changes to a MongoDB collection.
+  As of MongoDB 4.0, Change Streams can also be used to log changes at a database, and even a cluster level.
 
-
+  https://docs.mongodb.com/manual/changeStreams/index.html
+  ChangeStreams.java in the mflix/src/test/java/mflix/lessons
+  https://mongodb.github.io/mongo-java-driver/3.9/javadoc/com/mongodb/client/model/changestream/ChangeStreamDocument.html
 
 
